@@ -23,13 +23,12 @@ def callback(data):
     #print("Type of img: " + str(type(img)))
     #print("img shape: " + str(img.shape)) 
    
-    ret, corners = cv2.findChessboardCorners(img, (7,7), None)
+    ret, corners = cv2.findChessboardCorners(img, (6,6), None)
     # If a checker board is detected, image is displayed 
     if ret == True:
         print("Found checkers")
         plt.imshow(img, interpolation='nearest')
         plt.show()
-    
     # example checkerboard detecton line:
     # Find the chess board corners
     # ret, corners = cv.findChessboardCorners(gray, (7,6), None)
