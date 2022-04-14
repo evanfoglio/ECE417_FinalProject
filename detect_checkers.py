@@ -26,8 +26,11 @@ def callback(data):
         
         print("Found checkers")
         
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
         #plot the image
         plt.imshow(img, interpolation='nearest')
+
 
         # pull the individual coordinates from the 
         # return value of findChessboard
@@ -35,7 +38,7 @@ def callback(data):
             x.append(xy[0][0])
             y.append(xy[0][1])
         #plot coordinates on top of image
-        plt.scatter(x, y, color='red')
+        plt.scatter(x, y, color='blue')
         #display image
         plt.show()
 
