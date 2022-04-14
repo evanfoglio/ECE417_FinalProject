@@ -13,3 +13,9 @@ Webcam Passthough with VMWare:
   8) In removeable devices, hover over your webcam and click connect
   9) Select OK (Both times if it asks 2 things)
   10) In a terminal, type "lsusb" to verify it is being detected
+
+
+
+To Begin Sending Images to the ROS Topic:
+  1) roscore
+  2) rosrun cv_camera  cv_camera_node   _image_width:=640 _image_height:=480 _frame_id:=camera __name:=camera
