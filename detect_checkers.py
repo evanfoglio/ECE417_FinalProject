@@ -7,7 +7,7 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 import time
 from matplotlib import pyplot as plt
-
+from PIL import Image as im
 
 
 def callback(data):
@@ -15,22 +15,20 @@ def callback(data):
 
     #rospy.loginfo(rospy.get_caller_id() + " This will display to terminal ")
 
-    print("type of original data: " + str(type(data)))
+    #print("type of original data: " + str(type(data)))
     bridge = CvBridge()
     img = bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
     
     #debug print statements
-    print("Type of img: " + str(type(img)))
-    print("img shape: " + str(img.shape)) 
+    #print("Type of img: " + str(type(img)))
+    #print("img shape: " + str(img.shape)) 
    
-
-    #Currently displays 1 frame at a time and
-    # waits for the previous frome to be closed 
-    # before it grabs the next frame
-
-    #show image
-    plt.imshow(img, interpolation='nearest')
-    plt.show()
+    ret, corners = cv2.findChessboardCorners(img, (7,7), None)
+    # If a checker board is detected, image is displayed 
+    if ret == True:
+        print("Found checkers")
+        plt.imshow(img, interpolation='nearest')
+        plt.show()
     
     # example checkerboard detecton line:
     # Find the chess board corners
