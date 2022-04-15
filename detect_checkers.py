@@ -8,12 +8,11 @@ from sensor_msgs.msg import Image
 import time
 from matplotlib import pyplot as plt
 from PIL import Image as im
+from threading import Thread
 
 #This function is called everytime an image
 #is published to the "camera/image_raw/" topic
 def callback(data):
-
-    bridge = CvBridge()
     img = bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
     
     #Attempt to find checkerboard corners, ret = 1 if successful
@@ -21,26 +20,31 @@ def callback(data):
     # If a checker board is detected, 
     if ret == True:
         #define arrays to hold xy coordinates
-        x = []
-        y = []
+        #x = []
+        #y = []
         
         print("Found checkers")
         
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        thread1 = Thread(target=show_img, args=(img, corners))
+        thread1.start()
+        val = input("Enter X coordinate of y axis:")
+        print(val)
+            
+        while True:
+            dummy_var = 0
 
-        #plot the image
-        plt.imshow(img, interpolation='nearest')
+def show_img(img, corners):
+    x = []
+    y = []
+    plt.imshow(img, interpolation='nearest')
+    for xy in corners:
+        x.append(xy[0][0])
+        y.append(xy[0][1])
+    #plot coordinates on top of image
+    plt.scatter(x, y, color='blue')
 
-
-        # pull the individual coordinates from the 
-        # return value of findChessboard
-        for xy in corners:
-            x.append(xy[0][0])
-            y.append(xy[0][1])
-        #plot coordinates on top of image
-        plt.scatter(x, y, color='blue')
-        #display image
-        plt.show()
+    plt.show()
 
 
 
@@ -57,9 +61,8 @@ def listener():
     #wait for callbacks
     rospy.spin()
 
-if __name__ == '__main__':
-    
-    listener()
+bridge = CvBridge()    
+listener()
 
 
 
