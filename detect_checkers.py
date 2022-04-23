@@ -8,8 +8,7 @@ from sensor_msgs.msg import Image
 import time
 from matplotlib import pyplot as plt
 from PIL import Image as im
-from threading import Thread
-
+import os
 
 #This function is called everytime an image
 #is published to the "camera/image_raw/" topic
@@ -77,10 +76,31 @@ def listener():
     rospy.Subscriber("/camera/image_raw", Image, callback)
     #wait for callbacks
     rospy.spin()
-i = 1
-bridge = CvBridge() 
-print("Bout to listen")
-listener()
+
+pid = os.fork()
+if pid > 0 : 
+    #Parrent proccess
+    i = 1
+    bridge = CvBridge()
+    time.sleep(7)
+    print("Bout to listen")
+    listener()    
+else:
+    #Child
+    pid2 = os.fork()
+    if pid2 > 0 : 
+    #Parrent proccess
+        print("\nRunning roscore...\n")
+        system.os("roscore")
+    else:
+    #Child
+        time.sleep(3)
+        print("\nRunning Cam...\n")
+        os.system("rosrun cv_camera cv_camera_node _image_width:=640 _image_height:=480 _frame_id:=camera __name:=camera")
+#i = 1
+#bridge = CvBridge() 
+#print("Bout to listen")
+#listener()
 
 
 
