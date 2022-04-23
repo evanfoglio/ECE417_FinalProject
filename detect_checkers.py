@@ -10,13 +10,15 @@ from matplotlib import pyplot as plt
 from PIL import Image as im
 import os
 
+import findK as fk
+
+
 #This function is called everytime an image
 #is published to the "camera/image_raw/" topic
 def callback(data):
     global i
     if(i == 20):
         i = 1
-        print("Checking...")
         img = bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
         #Attempt to find checkerboard corners, ret = 1 if successful
         ret, corners = cv2.findChessboardCorners(img, (7,7), None)
@@ -38,7 +40,13 @@ def callback(data):
 
             if ret == True:
                 print("Found Second Checkerboard")
-                show_img(img_copy, corners, corners2)
+                #show_img(img_copy, corners, corners2)
+                points1 = np.array([corners[0][0], corners[1][0]])
+                points2 = np.array([corners2[0][0], corners2[1][0]])
+                fk.findK(points1, points2)
+
+
+
             else:
                 print("Second Board Not Found")
 
@@ -58,6 +66,7 @@ def show_img(img, corners, corners2):
         x1.append(xy[0][0])
         y1.append(xy[0][1])
     #plot coordinates on top of image
+
     plt.scatter(x, y, color='blue')
     plt.scatter(x1, y1, color='green')
     plt.show()
@@ -77,33 +86,32 @@ def listener():
     #wait for callbacks
     rospy.spin()
 
+
+# Fork the procces into
+#  Separate procceses to run 
+#  roscore and the camera node.
 pid = os.fork()
 if pid > 0 : 
     #Parrent proccess
     i = 1
     bridge = CvBridge()
-    time.sleep(7)
+    # give time for the other 
+    # commands to start
+    time.sleep(5)
     print("Bout to listen")
     listener()    
 else:
     #Child
     pid2 = os.fork()
     if pid2 > 0 : 
-    #Parrent proccess
+    #Child Parrent proccess
         print("\nRunning roscore...\n")
-        system.os("roscore")
+        os.system("roscore")
     else:
-    #Child
+    #Child Child
         time.sleep(3)
-        print("\nRunning Cam...\n")
+        print("\nRunning Camera...\n")
         os.system("rosrun cv_camera cv_camera_node _image_width:=640 _image_height:=480 _frame_id:=camera __name:=camera")
-#i = 1
-#bridge = CvBridge() 
-#print("Bout to listen")
-#listener()
-
-
-
 
 
 
