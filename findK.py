@@ -1,18 +1,44 @@
 #!/usr/bin/python3
 import sys
 import numpy as np
+import scipy.linalg
 def findK(points1, points2) :
-    arr = np.zeros((8,12))
-    num_points = 4
+    arr = np.zeros((24,12))
+    num_points = 24
+    debug = False
+    if debug:
+        print("Points1:")
+        print(points1)
+        print("\n\n")
+        print("points2:")
+        print(points2)
+        print("\n\n")
     
-    np.append(points1, points2)
+    all_points = np.concatenate((points1, points2), axis=0)
+    if debug:
+        print("all_points:")
+        print(all_points)
+        print("\n\n")
 
+
+
+    square = 2.8 
+    Xi = np.array([     [1*square, 1*square, 0, 1], [1*square, 2*square, 0, 1], [1*square, 3*square, 0, 1],
+                        [2*square, 1*square, 0, 1], [2*square, 2*square, 0, 1], [2*square, 3*square, 0, 1],
+                        [1*square, 0*square, 1*square, 1], [1*square, 0*square, 2*square, 1], [1*square, 0*square, 3*square, 1],
+                        [2*square, 0*square, 1*square, 1], [2*square, 0*square, 2*square, 1], [2*square, 0*square, 3*square, 1]])
+
+    if debug:
+        print("Xi:")
+        print(Xi)
+        print("\nXi.shape")
+        print(Xi.shape)
+        print("\n\n")
     j = 0
     curr_index = 0
-    for point in points1:
-        
+    for point in all_points:
         #Calculate needed variables
-        Xi = np.array([[0, 0, 0, 1*2.8], [0, 1*2.8, 0, 1*2.8], [0, 0, 1*2.8, 1*2.8], [0, 0, 2*2.8, 1*2.8]])
+        # X Y Z
         xip = point[0]
         yip = point[1]
         wip = 1
@@ -53,17 +79,78 @@ def findK(points1, points2) :
         # Move to next two rows and move to next Xi value
         j = j + 1
         curr_index = curr_index + 2
-    # Do the SVD
-    u, s, vh = np.linalg.svd(arr, full_matrices=True)
     
-    # Strip off the last column
-    P = vh[-1].reshape(3,4)
-    P_stripped = np.delete(P, -1, -1)
+    if debug:
+        print("arr.shape: " + str(arr.shape) + "\n\n")
+        print("arr:")
+        print(arr.__str__())
+        print("\n\n")
+    
 
-    # QR Factorization
-    r, K = np.linalg.qr(P_stripped)
+    # Do the SVD
+    u, s, vh = scipy.linalg.svd(arr)
+    V = np.transpose(vh)
     
+    if debug:
+        print("s:")
+        print(s)
+        print("s.shape: " + str(s.shape))
+        print("\n\n")
+
+    if debug:
+        print("u:")
+        print(u)
+        print("u .shape: " + str(u.shape))
+        print("\n\n")
+
+
+
+
+
+    # Strip off the last column 
+    if debug:
+        print("V[-1]:")
+        print(V[11])
+        print("V[-1] .shape: " + str(V[-1].shape))
+        print("\n\n")
+    
+    P = V[-1].reshape(3,4)
+
+    if debug:
+        print("P:")
+        print(P)
+        print("\n\n")
+
+
+    #P_stripped = np.delete(P, -1, -1)
+    M = P[0:3,0:3]
+    # QR Factorization
+    K, R = scipy.linalg.rq(M)
+    X = R * np.transpose(R)
+    
+    if debug:
+        print("R:")
+        print(R)
+        print("\n\n")
+
+        print("R*Rt:")
+        print(X)
+        print("\n\n")
+
+        print("K*Kt:")
+        Y = K * np.transpose(K)
+        print(Y)
+        print("\n\n")
+
+
     # print the K matrix
+    print("K:")
     print(K)
+
+
+
+
+
+
 
 
